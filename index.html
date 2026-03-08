@@ -29,6 +29,37 @@ font-weight:bold;
 text-align:center;
 }
 
+.preco{
+font-weight:bold;
+color:#198754;
+}
+
+.qtd-box{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+}
+
+.contador{
+font-size:18px;
+font-weight:bold;
+text-align:center;
+margin-bottom:10px;
+}
+
+.animar{
+transform:scale(1.2);
+transition:0.2s;
+}
+
+#resumo{
+background:#fff;
+border-radius:8px;
+padding:10px;
+font-size:14px;
+}
+
 </style>
 
 </head>
@@ -41,7 +72,11 @@ text-align:center;
 
 <div class="card-body">
 
-<h3 class="text-center mb-3">🍕 Pedido de Pizza</h3>
+<h3 class="text-center mb-2">🍕 Pedido de Pizza</h3>
+
+<div class="contador">
+Pizzas no pedido: <span id="contador">0</span>
+</div>
 
 <form id="form">
 
@@ -73,24 +108,80 @@ text-align:center;
 
 <div class="row mt-2">
 
-<div class="col-8">Marguerita</div>
-<div class="col-4">
-<input class="form-control" type="number" name="marguerita" value="0" min="0">
+<!-- Marguerita -->
+
+<div class="col-6">
+Marguerita<br>
+<span class="preco">R$45</span>
 </div>
 
-<div class="col-8 mt-2">3 Queijos</div>
-<div class="col-4 mt-2">
-<input class="form-control" type="number" name="tresQueijos" value="0" min="0">
+<div class="col-6">
+<div class="qtd-box">
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',-1)">-</button>
+
+<span id="marguerita">0</span>
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',1)">+</button>
+
+</div>
 </div>
 
-<div class="col-8 mt-2">Frango</div>
-<div class="col-4 mt-2">
-<input class="form-control" type="number" name="frango" value="0" min="0">
+<!-- 3 Queijos -->
+
+<div class="col-6 mt-3">
+3 Queijos<br>
+<span class="preco">R$45</span>
 </div>
 
-<div class="col-8 mt-2">Chocolate</div>
-<div class="col-4 mt-2">
-<input class="form-control" type="number" name="chocolate" value="0" min="0">
+<div class="col-6 mt-3">
+<div class="qtd-box">
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',-1)">-</button>
+
+<span id="tresQueijos">0</span>
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',1)">+</button>
+
+</div>
+</div>
+
+<!-- Frango -->
+
+<div class="col-6 mt-3">
+Frango<br>
+<span class="preco">R$45</span>
+</div>
+
+<div class="col-6 mt-3">
+<div class="qtd-box">
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',-1)">-</button>
+
+<span id="frango">0</span>
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',1)">+</button>
+
+</div>
+</div>
+
+<!-- Chocolate -->
+
+<div class="col-6 mt-3">
+Chocolate<br>
+<span class="preco">R$45</span>
+</div>
+
+<div class="col-6 mt-3">
+<div class="qtd-box">
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',-1)">-</button>
+
+<span id="chocolate">0</span>
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',1)">+</button>
+
+</div>
 </div>
 
 </div>
@@ -99,6 +190,14 @@ text-align:center;
 
 Total: <span id="valor">R$ 0</span>
 
+</div>
+
+<hr>
+
+<h5>Resumo do Pedido</h5>
+
+<div id="resumo">
+Nenhuma pizza selecionada
 </div>
 
 <hr>
@@ -148,36 +247,73 @@ Enviar Pedido
 
 const preco = 45;
 
-const campos = ["marguerita","tresQueijos","frango","chocolate"];
+const pizzas = {
+marguerita:0,
+tresQueijos:0,
+frango:0,
+chocolate:0
+};
+
+let enviando = false;
+
+function alterar(sabor,valor){
+
+pizzas[sabor]+=valor;
+
+if(pizzas[sabor] < 0){
+pizzas[sabor]=0;
+}
+
+const el = document.getElementById(sabor);
+
+el.innerText = pizzas[sabor];
+
+el.classList.add("animar");
+
+setTimeout(()=>el.classList.remove("animar"),200);
+
+calcular();
+
+}
 
 function calcular(){
 
-let total = 0;
+let total=0;
 
-campos.forEach(c=>{
-total += Number(document.querySelector(`[name=${c}]`).value);
-});
+let resumo="";
 
-document.getElementById("valor").innerText =
-"R$ " + (total * preco);
+for(let p in pizzas){
+
+if(pizzas[p]>0){
+
+resumo += `${p} x${pizzas[p]}<br>`;
+
+}
+
+total+=pizzas[p];
+
+}
+
+document.getElementById("contador").innerText = total;
+
+document.getElementById("valor").innerText = "R$ "+(total*preco);
+
+document.getElementById("resumo").innerHTML =
+resumo || "Nenhuma pizza selecionada";
 
 return total;
 
 }
 
-campos.forEach(c=>{
-document.querySelector(`[name=${c}]`)
-.addEventListener("input",calcular);
-});
-
 const form = document.getElementById("form");
 const checkPagamento = document.getElementById("checkPagamento");
+const btn = document.getElementById("btnEnviar");
 
 form.addEventListener("submit", async (e)=>{
 
 e.preventDefault();
 
-/* verifica checkbox */
+if(enviando) return;
 
 if(!checkPagamento.checked){
 
@@ -189,9 +325,7 @@ return;
 
 let total = calcular();
 
-/* impede pedido vazio */
-
-if(total == 0){
+if(total==0){
 
 alert("Você precisa pedir pelo menos 1 pizza!");
 
@@ -199,15 +333,24 @@ return;
 
 }
 
+enviando = true;
+
+btn.disabled = true;
+
+btn.innerHTML = `
+<span class="spinner-border spinner-border-sm"></span>
+ Enviando pedido...
+`;
+
 const dados = {
 
 unidade: form.unidade.value,
 nome: form.nome.value,
 endereco: form.endereco.value,
-marguerita: form.marguerita.value,
-tresQueijos: form.tresQueijos.value,
-frango: form.frango.value,
-chocolate: form.chocolate.value
+marguerita: pizzas.marguerita,
+tresQueijos: pizzas.tresQueijos,
+frango: pizzas.frango,
+chocolate: pizzas.chocolate
 
 };
 
@@ -220,11 +363,7 @@ body:JSON.stringify(dados)
 
 alert("Pedido enviado com sucesso!");
 
-form.reset();
-
-document.getElementById("valor").innerText = "R$ 0";
-
-checkPagamento.checked = false;
+location.reload();
 
 });
 
