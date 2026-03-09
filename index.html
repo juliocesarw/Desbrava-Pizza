@@ -83,7 +83,7 @@ Pizzas no pedido: <span id="contador">0</span>
 <label class="form-label">Unidade</label>
 
 <select class="form-select" name="unidade" required>
-<option value="" selected disabled>Selecionar unidade</option>
+<option value="" selected disabled>Selecionar unidade que indicou</option>
 <option>Pégasus</option>
 <option>Escorpião</option>
 <option>Hércules</option>
@@ -91,6 +91,7 @@ Pizzas no pedido: <span id="contador">0</span>
 <option>Ursa Menor</option>
 <option>Ursa Maior</option>
 <option>Phoenix</option>
+<option>Não tenho unidade</option>
 </select>
 
 <label class="form-label mt-3">Nome do Cliente</label>
@@ -98,6 +99,9 @@ Pizzas no pedido: <span id="contador">0</span>
 
 <label class="form-label mt-3">Endereço</label>
 <input class="form-control" type="text" name="endereco" required>
+
+<label class="form-label mt-3">Ponto de Referência (opcional)</label>
+<input class="form-control" type="text" name="referencia">
 
 <h5 class="mt-4">Sabores</h5>
 
@@ -168,6 +172,9 @@ Total: <span id="valor">R$ 0</span>
 <div id="resumo">
 Nenhuma pizza selecionada
 </div>
+
+<label class="form-label mt-3">Observações (opcional)</label>
+<textarea class="form-control" name="observacoes" rows="2"></textarea>
 
 <hr>
 
@@ -314,9 +321,13 @@ return "#";
 let mensagem = "Olá! Segue meu comprovante do pedido de pizza.%0A%0A";
 
 mensagem += "Cliente: " + form.nome.value + "%0A";
-mensagem += "Endereço: " + form.endereco.value + "%0A%0A";
+mensagem += "Endereço: " + form.endereco.value + "%0A";
 
-mensagem += "Pedido:%0A";
+if(form.referencia.value){
+mensagem += "Referência: " + form.referencia.value + "%0A";
+}
+
+mensagem += "%0A Pedido:%0A";
 
 for(let p in pizzas){
 if(pizzas[p] > 0){
@@ -325,6 +336,10 @@ mensagem += `${nomes[p]} x${pizzas[p]}%0A`;
 }
 
 mensagem += `%0ATotal: R$ ${total*preco}`;
+
+if(form.observacoes.value){
+mensagem += `%0A%0AObservações: ${form.observacoes.value}`;
+}
 
 return "https://wa.me/5527988715056?text=" + mensagem;
 
@@ -370,6 +385,8 @@ const dados = {
 unidade: form.unidade.value,
 nome: form.nome.value,
 endereco: form.endereco.value,
+referencia: form.referencia.value,
+observacoes: form.observacoes.value,
 marguerita: pizzas.marguerita,
 tresQueijos: pizzas.tresQueijos,
 frango: pizzas.frango,
