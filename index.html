@@ -202,9 +202,24 @@ Nenhuma pizza selecionada
 
 <hr>
 
-<h5>Pagamento via PIX</h5>
+<div class="d-flex align-items-center gap-2">
 
-Chave PIX (CPF): <b>00820178756</b><br>
+<span>
+Chave PIX (CPF): <b id="pix">00820178756</b>
+</span>
+
+<button 
+type="button" 
+class="btn btn-outline-secondary btn-sm"
+id="btnPix"
+onclick="copiarPix()">
+
+📋 Copiar
+
+</button>
+
+</div>
+
 Nome: <b>Anderson Antônio</b><br><br>
 
 Após realizar o pagamento, envie o comprovante para o WhatsApp:
@@ -244,6 +259,27 @@ Enviar Pedido
 </div>
 
 <script>
+
+function copiarPix(){
+
+const chave = document.getElementById("pix").innerText;
+const botao = document.getElementById("btnPix");
+
+navigator.clipboard.writeText(chave);
+
+botao.innerHTML = "✅ Copiado";
+botao.classList.remove("btn-outline-secondary");
+botao.classList.add("btn-success");
+
+setTimeout(()=>{
+
+botao.innerHTML = "📋 Copiar";
+botao.classList.remove("btn-success");
+botao.classList.add("btn-outline-secondary");
+
+},2000);
+
+}
 
 const preco = 45;
 
