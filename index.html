@@ -83,9 +83,7 @@ Pizzas no pedido: <span id="contador">0</span>
 <label class="form-label">Unidade</label>
 
 <select class="form-select" name="unidade" required>
-
 <option value="" selected disabled>Selecionar unidade</option>
-
 <option>Pégasus</option>
 <option>Escorpião</option>
 <option>Hércules</option>
@@ -93,22 +91,17 @@ Pizzas no pedido: <span id="contador">0</span>
 <option>Ursa Menor</option>
 <option>Ursa Maior</option>
 <option>Phoenix</option>
-
 </select>
 
 <label class="form-label mt-3">Nome do Cliente</label>
-
 <input class="form-control" type="text" name="nome" required>
 
 <label class="form-label mt-3">Endereço</label>
-
 <input class="form-control" type="text" name="endereco" required>
 
 <h5 class="mt-4">Sabores</h5>
 
 <div class="row mt-2">
-
-<!-- Marguerita -->
 
 <div class="col-6">
 Marguerita<br>
@@ -117,17 +110,11 @@ Marguerita<br>
 
 <div class="col-6">
 <div class="qtd-box">
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',-1)">-</button>
-
 <span id="marguerita">0</span>
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',1)">+</button>
-
 </div>
 </div>
-
-<!-- 3 Queijos -->
 
 <div class="col-6 mt-3">
 3 Queijos<br>
@@ -136,17 +123,11 @@ Marguerita<br>
 
 <div class="col-6 mt-3">
 <div class="qtd-box">
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',-1)">-</button>
-
 <span id="tresQueijos">0</span>
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',1)">+</button>
-
 </div>
 </div>
-
-<!-- Frango -->
 
 <div class="col-6 mt-3">
 Frango<br>
@@ -155,17 +136,11 @@ Frango<br>
 
 <div class="col-6 mt-3">
 <div class="qtd-box">
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',-1)">-</button>
-
 <span id="frango">0</span>
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',1)">+</button>
-
 </div>
 </div>
-
-<!-- Chocolate -->
 
 <div class="col-6 mt-3">
 Chocolate<br>
@@ -174,22 +149,16 @@ Chocolate<br>
 
 <div class="col-6 mt-3">
 <div class="qtd-box">
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',-1)">-</button>
-
 <span id="chocolate">0</span>
-
 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',1)">+</button>
-
 </div>
 </div>
 
 </div>
 
 <div class="valor mt-3">
-
 Total: <span id="valor">R$ 0</span>
-
 </div>
 
 <hr>
@@ -205,29 +174,24 @@ Nenhuma pizza selecionada
 <div class="d-flex align-items-center gap-2">
 
 <span>
-Chave PIX (CPF): <b id="pix">00820178756</b>
+Chave PIX (CPF): <b id="pix">138.799.307-08</b>
 </span>
 
-<button 
-type="button" 
-class="btn btn-outline-secondary btn-sm"
-id="btnPix"
-onclick="copiarPix()">
-
+<button type="button" class="btn btn-outline-secondary btn-sm" id="btnPix" onclick="copiarPix()">
 📋 Copiar
-
 </button>
 
 </div>
 
-Nome: <b>Anderson Antônio</b><br><br>
+Nome: <b>Bernardo Vieira Simões</b><br><br>
 
 Após realizar o pagamento, envie o comprovante para o WhatsApp:
 
 <br><br>
 
 <a class="btn btn-success w-100 mb-3"
-href="https://wa.me/5527995067595?text=Olá!%20Segue%20meu%20comprovante%20do%20pedido%20de%20pizza."
+id="btnWhatsapp"
+href="#"
 target="_blank">
 
 Enviar comprovante no WhatsApp
@@ -244,12 +208,8 @@ Já paguei e enviei o comprovante
 
 </div>
 
-<button class="btn btn-danger w-100"
-type="submit"
-id="btnEnviar">
-
+<button class="btn btn-danger w-100" type="submit" id="btnEnviar">
 Enviar Pedido
-
 </button>
 
 </form>
@@ -259,6 +219,13 @@ Enviar Pedido
 </div>
 
 <script>
+
+const nomes = {
+marguerita: "Marguerita",
+tresQueijos: "3 Queijos",
+frango: "Frango",
+chocolate: "Chocolate"
+};
 
 function copiarPix(){
 
@@ -272,11 +239,9 @@ botao.classList.remove("btn-outline-secondary");
 botao.classList.add("btn-success");
 
 setTimeout(()=>{
-
 botao.innerHTML = "📋 Copiar";
 botao.classList.remove("btn-success");
 botao.classList.add("btn-outline-secondary");
-
 },2000);
 
 }
@@ -315,15 +280,12 @@ calcular();
 function calcular(){
 
 let total=0;
-
 let resumo="";
 
 for(let p in pizzas){
 
 if(pizzas[p]>0){
-
-resumo += `${p} x${pizzas[p]}<br>`;
-
+resumo += `${nomes[p]} x${pizzas[p]}<br>`;
 }
 
 total+=pizzas[p];
@@ -331,7 +293,6 @@ total+=pizzas[p];
 }
 
 document.getElementById("contador").innerText = total;
-
 document.getElementById("valor").innerText = "R$ "+(total*preco);
 
 document.getElementById("resumo").innerHTML =
@@ -340,6 +301,38 @@ resumo || "Nenhuma pizza selecionada";
 return total;
 
 }
+
+function gerarMensagemWhatsapp(){
+
+let total = calcular();
+
+if(total == 0){
+alert("Adicione pelo menos 1 pizza antes de enviar!");
+return "#";
+}
+
+let mensagem = "Olá! Segue meu comprovante do pedido de pizza.%0A%0A";
+
+mensagem += "Cliente: " + form.nome.value + "%0A";
+mensagem += "Endereço: " + form.endereco.value + "%0A%0A";
+
+mensagem += "Pedido:%0A";
+
+for(let p in pizzas){
+if(pizzas[p] > 0){
+mensagem += `${nomes[p]} x${pizzas[p]}%0A`;
+}
+}
+
+mensagem += `%0ATotal: R$ ${total*preco}`;
+
+return "https://wa.me/5527988715056?text=" + mensagem;
+
+}
+
+document.getElementById("btnWhatsapp").addEventListener("click", function(){
+this.href = gerarMensagemWhatsapp();
+});
 
 const form = document.getElementById("form");
 const checkPagamento = document.getElementById("checkPagamento");
@@ -352,21 +345,15 @@ e.preventDefault();
 if(enviando) return;
 
 if(!checkPagamento.checked){
-
 alert("Você precisa marcar que já pagou e enviou o comprovante!");
-
 return;
-
 }
 
 let total = calcular();
 
 if(total==0){
-
 alert("Você precisa pedir pelo menos 1 pizza!");
-
 return;
-
 }
 
 enviando = true;
@@ -391,10 +378,8 @@ chocolate: pizzas.chocolate
 };
 
 await fetch("https://script.google.com/macros/s/AKfycbwdo09Yy9EJeNJUqBOnV6XCo8vL0Fx7bw8cJJaaqHzIlCFluiQC3_hug7Tw847l23Qd/exec",{
-
 method:"POST",
 body:JSON.stringify(dados)
-
 });
 
 alert("Pedido enviado com sucesso!");
@@ -406,5 +391,4 @@ location.reload();
 </script>
 
 </body>
-
 </html>
