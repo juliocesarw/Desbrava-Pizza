@@ -53,7 +53,8 @@ border:2px solid #198754;
 border-radius:10px;
 padding:12px;
 text-align:center;
-margin-top:15px;
+margin-top:25px;
+margin-bottom: 20px;
 }
 
 .total-sub{
@@ -85,6 +86,26 @@ text-align:center;
 .taxa{
 color:#dc3545;
 font-weight:bold;
+}
+
+/* Estilos para a caixa do PIX e animação do botão */
+.pix-box {
+background: #f8f9fa;
+border: 1px dashed #6c757d;
+border-radius: 8px;
+padding: 15px;
+text-align: center;
+}
+
+.btn-copiar {
+transition: all 0.3s ease;
+}
+
+.btn-copiado {
+background-color: #198754 !important;
+color: white !important;
+border-color: #198754 !important;
+transform: scale(1.05);
 }
 
 .btn-enviar{
@@ -151,6 +172,17 @@ Pizzas no pedido: <span id="contador">0</span>
 
 <div id="sabores"></div>
 
+<hr class="mt-4">
+
+<h5>Resumo do Pedido</h5>
+
+<div id="resumo" class="text-muted">
+Nenhuma pizza selecionada
+</div>
+
+<label class="form-label mt-3">Observações</label>
+<textarea class="form-control" name="observacoes" placeholder="Ex: Tocar o interfone..."></textarea>
+
 <div class="total-box">
 
 <div>Subtotal pizzas</div>
@@ -167,18 +199,15 @@ Pizzas no pedido: <span id="contador">0</span>
 
 </div>
 
-<hr>
-
-<h5>Resumo do Pedido</h5>
-
-<div id="resumo">
-Nenhuma pizza selecionada
+<div class="pix-box mb-3">
+    <h6 class="mb-1 text-success fw-bold">Pague com PIX</h6>
+    <div class="text-muted small mb-2">Nome: Bernardo Vieira Simões</div>
+    
+    <div class="d-flex justify-content-center align-items-center gap-2">
+        <span class="fw-bold fs-5" id="chavePix">138.799.307-08</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary btn-copiar" id="btnCopiarPix" onclick="copiarPix()">Copiar</button>
+    </div>
 </div>
-
-<label class="form-label mt-3">Observações</label>
-<textarea class="form-control" name="observacoes"></textarea>
-
-<hr>
 
 <a class="btn btn-success w-100 mb-3"
 id="btnWhatsapp"
@@ -330,6 +359,22 @@ return totalFinal;
 
 }
 
+// FUNÇÃO PARA COPIAR A CHAVE PIX
+function copiarPix() {
+    const chave = "138.799.307-08";
+    navigator.clipboard.writeText(chave).then(() => {
+        const btn = document.getElementById("btnCopiarPix");
+        btn.innerText = "Copiado!";
+        btn.classList.add("btn-copiado");
+        
+        // Remove a animação e volta ao texto normal após 2 segundos
+        setTimeout(() => {
+            btn.innerText = "Copiar";
+            btn.classList.remove("btn-copiado");
+        }, 2000);
+    });
+}
+
 function gerarMensagemWhatsapp(){
 
 let total = calcular();
@@ -358,15 +403,34 @@ return "https://wa.me/5527988715056?text="+mensagem;
 
 }
 
-document.getElementById("btnWhatsapp").addEventListener("click",function(){
-this.href = gerarMensagemWhatsapp();
-});
-
 const form = document.getElementById("form");
+
+// Adicionado evento de validação antes de ir para o WhatsApp
+document.getElementById("btnWhatsapp").addEventListener("click",function(e){
+    
+    // Validação 1: Verificar se existe pelo menos uma pizza
+    let totalPizzas = pizzas.marguerita + pizzas.tresQueijos + pizzas.frango + pizzas.chocolate;
+    
+    if(totalPizzas === 0) {
+        e.preventDefault(); // Impede de abrir o link do WhatsApp
+        alert("Selecione pelo menos uma pizza antes de enviar o comprovante!");
+        return;
+    }
+
+    this.href = gerarMensagemWhatsapp();
+});
 
 form.addEventListener("submit", async (e)=>{
 
 e.preventDefault();
+
+// Validação 1: Verificar se existe pelo menos uma pizza antes de enviar o formulário
+let totalPizzas = pizzas.marguerita + pizzas.tresQueijos + pizzas.frango + pizzas.chocolate;
+
+if(totalPizzas === 0) {
+    alert("Selecione pelo menos uma pizza para fazer o pedido!");
+    return;
+}
 
 if(!document.getElementById("confirmarPagamento").checked){
 
@@ -400,9 +464,9 @@ marguerita: pizzas.marguerita,
 tresQueijos: pizzas.tresQueijos,
 frango: pizzas.frango,
 chocolate: pizzas.chocolate,
-subtotal: subtotalPizzas, // Envia o valor só das pizzas
-taxa: valorTaxaAplicada,  // Envia a taxa separadamente (0 ou 5)
-total: totalFinalCalculado // Total absoluto que deve ir pra planilha
+subtotal: subtotalPizzas, 
+taxa: valorTaxaAplicada,  
+total: totalFinalCalculado 
 
 };
 
