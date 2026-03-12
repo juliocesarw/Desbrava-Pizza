@@ -23,12 +23,6 @@ margin-top:30px;
 margin-bottom:30px;
 }
 
-.valor{
-font-size:22px;
-font-weight:bold;
-text-align:center;
-}
-
 .preco{
 font-weight:bold;
 color:#198754;
@@ -56,8 +50,48 @@ transition:0.2s;
 #resumo{
 background:#fff;
 border-radius:8px;
-padding:10px;
+padding:12px;
 font-size:14px;
+}
+
+.total-box{
+background:#e9f9ee;
+border:2px solid #198754;
+border-radius:10px;
+padding:12px;
+text-align:center;
+margin-top:15px;
+}
+
+.total-sub{
+font-size:18px;
+font-weight:bold;
+}
+
+.total-valor{
+font-size:34px;
+font-weight:bold;
+color:#198754;
+transition:0.2s;
+}
+
+.animar-total{
+transform:scale(1.15);
+}
+
+.taxa-box{
+background:#fff0f0;
+border:1px solid #dc3545;
+border-radius:6px;
+padding:6px;
+margin-top:5px;
+font-size:14px;
+text-align:center;
+}
+
+.taxa{
+color:#dc3545;
+font-weight:bold;
 }
 
 </style>
@@ -96,6 +130,14 @@ Pizzas no pedido: <span id="contador">0</span>
 
 <label class="form-label mt-3">Nome do Cliente</label>
 <input class="form-control" type="text" name="nome" required>
+
+<label class="form-label mt-3">Você é do bairro?</label>
+
+<select class="form-select" name="bairro" id="bairro" required onchange="calcular()">
+<option value="" selected disabled>Selecionar</option>
+<option value="sim">Sim</option>
+<option value="nao">Não</option>
+</select>
 
 <label class="form-label mt-3">Endereço</label>
 <input class="form-control" type="text" name="endereco" required>
@@ -161,8 +203,20 @@ Chocolate<br>
 
 </div>
 
-<div class="valor mt-3">
-Total: <span id="valor">R$ 0</span>
+<div class="total-box">
+
+<div>Subtotal pizzas</div>
+<div class="total-sub" id="subtotal">R$ 0</div>
+
+<div class="taxa-box" id="taxaBox" style="display:none">
+🚚 Taxa de entrega: <span class="taxa">R$5</span>
+</div>
+
+<hr>
+
+<div>Total do pedido</div>
+<div class="total-valor" id="valor">R$ 0</div>
+
 </div>
 
 <hr>
@@ -178,42 +232,12 @@ Nenhuma pizza selecionada
 
 <hr>
 
-<div class="d-flex align-items-center gap-2">
-
-<span>
-Chave PIX (CPF): <b id="pix">138.799.307-08</b>
-</span>
-
-<button type="button" class="btn btn-outline-secondary btn-sm" id="btnPix" onclick="copiarPix()">
-📋 Copiar
-</button>
-
-</div>
-
-Nome: <b>Bernardo Vieira Simões</b><br><br>
-
-Após realizar o pagamento, envie o comprovante para o WhatsApp:
-
-<br><br>
-
 <a class="btn btn-success w-100 mb-3"
 id="btnWhatsapp"
 href="#"
 target="_blank">
-
 Enviar comprovante no WhatsApp
-
 </a>
-
-<div class="form-check mb-3">
-
-<input class="form-check-input" type="checkbox" id="checkPagamento">
-
-<label class="form-check-label">
-Já paguei e enviei o comprovante
-</label>
-
-</div>
 
 <button class="btn btn-danger w-100" type="submit" id="btnEnviar">
 Enviar Pedido
@@ -227,33 +251,15 @@ Enviar Pedido
 
 <script>
 
-const nomes = {
-marguerita: "Marguerita",
-tresQueijos: "3 Queijos",
-frango: "Frango",
-chocolate: "Chocolate"
-};
-
-function copiarPix(){
-
-const chave = document.getElementById("pix").innerText;
-const botao = document.getElementById("btnPix");
-
-navigator.clipboard.writeText(chave);
-
-botao.innerHTML = "✅ Copiado";
-botao.classList.remove("btn-outline-secondary");
-botao.classList.add("btn-success");
-
-setTimeout(()=>{
-botao.innerHTML = "📋 Copiar";
-botao.classList.remove("btn-success");
-botao.classList.add("btn-outline-secondary");
-},2000);
-
-}
-
 const preco = 45;
+const taxaEntrega = 5;
+
+const nomes = {
+marguerita:"Marguerita",
+tresQueijos:"3 Queijos",
+frango:"Frango",
+chocolate:"Chocolate"
+};
 
 const pizzas = {
 marguerita:0,
@@ -262,15 +268,11 @@ frango:0,
 chocolate:0
 };
 
-let enviando = false;
-
 function alterar(sabor,valor){
 
 pizzas[sabor]+=valor;
 
-if(pizzas[sabor] < 0){
-pizzas[sabor]=0;
-}
+if(pizzas[sabor]<0) pizzas[sabor]=0;
 
 const el = document.getElementById(sabor);
 
@@ -286,26 +288,48 @@ calcular();
 
 function calcular(){
 
-let total=0;
+let totalPizzas=0;
 let resumo="";
 
 for(let p in pizzas){
 
 if(pizzas[p]>0){
-resumo += `${nomes[p]} x${pizzas[p]}<br>`;
+resumo+=`${nomes[p]} x${pizzas[p]}<br>`;
 }
 
-total+=pizzas[p];
+totalPizzas+=pizzas[p];
 
 }
 
-document.getElementById("contador").innerText = total;
-document.getElementById("valor").innerText = "R$ "+(total*preco);
+let subtotal = totalPizzas * preco;
 
-document.getElementById("resumo").innerHTML =
-resumo || "Nenhuma pizza selecionada";
+let taxa = 0;
 
-return total;
+if(document.getElementById("bairro").value==="nao"){
+taxa = taxaEntrega;
+document.getElementById("taxaBox").style.display="block";
+resumo+=`Taxa de entrega: R$5<br>`;
+}else{
+document.getElementById("taxaBox").style.display="none";
+}
+
+let totalFinal = subtotal + taxa;
+
+document.getElementById("contador").innerText = totalPizzas;
+
+document.getElementById("subtotal").innerText="R$ "+subtotal;
+
+let totalEl = document.getElementById("valor");
+
+totalEl.innerText="R$ "+totalFinal;
+
+totalEl.classList.add("animar-total");
+
+setTimeout(()=>totalEl.classList.remove("animar-total"),200);
+
+document.getElementById("resumo").innerHTML = resumo || "Nenhuma pizza selecionada";
+
+return totalFinal;
 
 }
 
@@ -313,85 +337,64 @@ function gerarMensagemWhatsapp(){
 
 let total = calcular();
 
-if(total == 0){
-alert("Adicione pelo menos 1 pizza antes de enviar!");
-return "#";
-}
+let mensagem = "🍕 PEDIDO DE PIZZA%0A%0A";
 
-let mensagem = "Olá! Segue meu comprovante do pedido de pizza.%0A%0A";
-
-mensagem += "Unidade: " + form.unidade.value + "%0A";
-mensagem += "Cliente: " + form.nome.value + "%0A";
-mensagem += "Endereço: " + form.endereco.value + "%0A";
+mensagem+="Unidade: "+form.unidade.value+"%0A";
+mensagem+="Cliente: "+form.nome.value+"%0A";
+mensagem+="Do bairro: "+form.bairro.value+"%0A";
+mensagem+="Endereço: "+form.endereco.value+"%0A";
 
 if(form.referencia.value){
-mensagem += "Referência: " + form.referencia.value + "%0A";
+mensagem+="Referência: "+form.referencia.value+"%0A";
 }
 
-mensagem += "%0A Pedido:%0A";
+mensagem+="%0APedido:%0A";
 
 for(let p in pizzas){
-if(pizzas[p] > 0){
-mensagem += `${nomes[p]} x${pizzas[p]}%0A`;
+if(pizzas[p]>0){
+mensagem+=`${nomes[p]} x${pizzas[p]}%0A`;
 }
 }
 
-mensagem += `%0ATotal: R$ ${total*preco}`;
+if(form.bairro.value==="nao"){
+mensagem+="Taxa de entrega: R$5%0A";
+}
+
+mensagem+=`%0ATotal: R$ ${total}`;
 
 if(form.observacoes.value){
-mensagem += `%0A%0AObservações: ${form.observacoes.value}`;
+mensagem+=`%0A%0AObservações: ${form.observacoes.value}`;
 }
 
-return "https://wa.me/5527988715056?text=" + mensagem;
+return "https://wa.me/5527988715056?text="+mensagem;
 
 }
 
-document.getElementById("btnWhatsapp").addEventListener("click", function(){
+document.getElementById("btnWhatsapp").addEventListener("click",function(){
 this.href = gerarMensagemWhatsapp();
 });
 
 const form = document.getElementById("form");
-const checkPagamento = document.getElementById("checkPagamento");
-const btn = document.getElementById("btnEnviar");
 
 form.addEventListener("submit", async (e)=>{
 
 e.preventDefault();
 
-if(enviando) return;
-
-if(!checkPagamento.checked){
-alert("Você precisa marcar que já pagou e enviou o comprovante!");
-return;
-}
-
 let total = calcular();
-
-if(total==0){
-alert("Você precisa pedir pelo menos 1 pizza!");
-return;
-}
-
-enviando = true;
-
-btn.disabled = true;
-
-btn.innerHTML = `
-<span class="spinner-border spinner-border-sm"></span>
- Enviando pedido...
-`;
 
 const dados = {
 
 unidade: form.unidade.value,
 nome: form.nome.value,
+bairro: form.bairro.value,
 endereco: form.endereco.value,
 referencia: form.referencia.value,
 observacoes: form.observacoes.value,
 marguerita: pizzas.marguerita,
 tresQueijos: pizzas.tresQueijos,
 frango: pizzas.frango,
-chocolate: pizzas.chocolate
+chocolate: pizzas.chocolate,
+total: total
 
 };
 
