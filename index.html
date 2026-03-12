@@ -47,13 +47,6 @@ transform:scale(1.2);
 transition:0.2s;
 }
 
-#resumo{
-background:#fff;
-border-radius:8px;
-padding:12px;
-font-size:14px;
-}
-
 .total-box{
 background:#e9f9ee;
 border:2px solid #198754;
@@ -92,6 +85,15 @@ text-align:center;
 .taxa{
 color:#dc3545;
 font-weight:bold;
+}
+
+.btn-enviar{
+font-weight:bold;
+transition:0.2s;
+}
+
+.btn-enviar:active{
+transform:scale(0.96);
 }
 
 </style>
@@ -142,66 +144,12 @@ Pizzas no pedido: <span id="contador">0</span>
 <label class="form-label mt-3">Endereço</label>
 <input class="form-control" type="text" name="endereco" required>
 
-<label class="form-label mt-3">Ponto de Referência (opcional)</label>
+<label class="form-label mt-3">Ponto de Referência</label>
 <input class="form-control" type="text" name="referencia">
 
 <h5 class="mt-4">Sabores</h5>
 
-<div class="row mt-2">
-
-<div class="col-6">
-Marguerita<br>
-<span class="preco">R$45</span>
-</div>
-
-<div class="col-6">
-<div class="qtd-box">
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',-1)">-</button>
-<span id="marguerita">0</span>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('marguerita',1)">+</button>
-</div>
-</div>
-
-<div class="col-6 mt-3">
-3 Queijos<br>
-<span class="preco">R$45</span>
-</div>
-
-<div class="col-6 mt-3">
-<div class="qtd-box">
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',-1)">-</button>
-<span id="tresQueijos">0</span>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('tresQueijos',1)">+</button>
-</div>
-</div>
-
-<div class="col-6 mt-3">
-Frango<br>
-<span class="preco">R$45</span>
-</div>
-
-<div class="col-6 mt-3">
-<div class="qtd-box">
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',-1)">-</button>
-<span id="frango">0</span>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('frango',1)">+</button>
-</div>
-</div>
-
-<div class="col-6 mt-3">
-Chocolate<br>
-<span class="preco">R$45</span>
-</div>
-
-<div class="col-6 mt-3">
-<div class="qtd-box">
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',-1)">-</button>
-<span id="chocolate">0</span>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('chocolate',1)">+</button>
-</div>
-</div>
-
-</div>
+<div id="sabores"></div>
 
 <div class="total-box">
 
@@ -227,8 +175,8 @@ Chocolate<br>
 Nenhuma pizza selecionada
 </div>
 
-<label class="form-label mt-3">Observações (opcional)</label>
-<textarea class="form-control" name="observacoes" rows="2"></textarea>
+<label class="form-label mt-3">Observações</label>
+<textarea class="form-control" name="observacoes"></textarea>
 
 <hr>
 
@@ -239,8 +187,24 @@ target="_blank">
 Enviar comprovante no WhatsApp
 </a>
 
-<button class="btn btn-danger w-100" type="submit" id="btnEnviar">
-Enviar Pedido
+<div class="form-check mb-3">
+
+<input class="form-check-input" type="checkbox" id="confirmarPagamento">
+
+<label class="form-check-label">
+Já paguei e enviei o comprovante pelo WhatsApp.
+</label>
+
+</div>
+
+<button class="btn btn-danger w-100 btn-enviar d-flex justify-content-center align-items-center gap-2"
+type="submit"
+id="btnEnviar">
+
+<span id="loadingSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none;"></span>
+
+<span id="textoBotao">Enviar Pedido</span>
+
 </button>
 
 </form>
@@ -267,6 +231,39 @@ tresQueijos:0,
 frango:0,
 chocolate:0
 };
+
+const container = document.getElementById("sabores");
+
+for(let p in nomes){
+
+container.innerHTML += `
+
+<div class="row mt-3">
+
+<div class="col-6">
+${nomes[p]}<br>
+<span class="preco">R$45</span>
+</div>
+
+<div class="col-6">
+
+<div class="qtd-box">
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('${p}',-1)">-</button>
+
+<span id="${p}">0</span>
+
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="alterar('${p}',1)">+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+}
 
 function alterar(sabor,valor){
 
@@ -341,12 +338,7 @@ let mensagem = "🍕 PEDIDO DE PIZZA%0A%0A";
 
 mensagem+="Unidade: "+form.unidade.value+"%0A";
 mensagem+="Cliente: "+form.nome.value+"%0A";
-mensagem+="Do bairro: "+form.bairro.value+"%0A";
 mensagem+="Endereço: "+form.endereco.value+"%0A";
-
-if(form.referencia.value){
-mensagem+="Referência: "+form.referencia.value+"%0A";
-}
 
 mensagem+="%0APedido:%0A";
 
@@ -362,10 +354,6 @@ mensagem+="Taxa de entrega: R$5%0A";
 
 mensagem+=`%0ATotal: R$ ${total}`;
 
-if(form.observacoes.value){
-mensagem+=`%0A%0AObservações: ${form.observacoes.value}`;
-}
-
 return "https://wa.me/5527988715056?text="+mensagem;
 
 }
@@ -380,7 +368,25 @@ form.addEventListener("submit", async (e)=>{
 
 e.preventDefault();
 
-let total = calcular();
+if(!document.getElementById("confirmarPagamento").checked){
+
+alert("Confirme que enviou o comprovante.");
+
+return;
+
+}
+
+const btn = document.getElementById("btnEnviar");
+
+btn.disabled = true;
+
+document.getElementById("textoBotao").innerText="Enviando pedido...";
+document.getElementById("loadingSpinner").style.display="inline-block";
+
+// Captura do total, subtotal e taxa para enviar ao Google Sheets
+let totalFinalCalculado = calcular();
+let valorTaxaAplicada = form.bairro.value === "nao" ? taxaEntrega : 0;
+let subtotalPizzas = totalFinalCalculado - valorTaxaAplicada;
 
 const dados = {
 
@@ -394,7 +400,9 @@ marguerita: pizzas.marguerita,
 tresQueijos: pizzas.tresQueijos,
 frango: pizzas.frango,
 chocolate: pizzas.chocolate,
-total: total
+subtotal: subtotalPizzas, // Envia o valor só das pizzas
+taxa: valorTaxaAplicada,  // Envia a taxa separadamente (0 ou 5)
+total: totalFinalCalculado // Total absoluto que deve ir pra planilha
 
 };
 
